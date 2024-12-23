@@ -2,6 +2,7 @@ package com.chatlog.chatlog_server.controllers;
 
 
 import com.chatlog.chatlog_server.models.ChatLog;
+import com.chatlog.chatlog_server.models.DTOs.ChatLogDTO;
 import com.chatlog.chatlog_server.services.ChatLogService;
 import com.chatlog.chatlog_server.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,11 +23,10 @@ public class ChatLogController {
 
     @Operation(summary = "Timestamp is added automatically , But you can pass own ")
     @PostMapping("/{user}")
-    public ResponseEntity<Object> saveChatLog(@PathVariable("user") String user, @Valid @RequestBody ChatLog chatLog) {
+    public ResponseEntity<Object> saveChatLog(@PathVariable("user") String user, @Valid @RequestBody ChatLogDTO chatLogDTO) {
 
         try {
-            chatLog.setUser(user);
-            ChatLog savedLog = chatLogService.saveChatLog(chatLog);
+            ChatLog savedLog = chatLogService.saveChatLog(chatLogDTO ,user);
             return ResponseHandler.generateResponse("Chat log saved successfully", HttpStatus.CREATED, savedLog);
 
         } catch (Exception e) {

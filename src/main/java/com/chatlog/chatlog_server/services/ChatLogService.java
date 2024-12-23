@@ -1,6 +1,7 @@
 package com.chatlog.chatlog_server.services;
 
 import com.chatlog.chatlog_server.models.ChatLog;
+import com.chatlog.chatlog_server.models.DTOs.ChatLogDTO;
 import com.chatlog.chatlog_server.repository.ChatLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +15,17 @@ public class ChatLogService {
     @Autowired
     private ChatLogRepository chatLogRepository;
 
-    public ChatLog saveChatLog(ChatLog chatLog) {
+    public ChatLog saveChatLog(ChatLogDTO chatLogDTO, String user) {
 
-        if (chatLog.getTimestamp() == null) {
+        ChatLog chatLog = new ChatLog();
+        chatLog.setUser(user);
+        chatLog.setMessage(chatLogDTO.getMessage());
+        chatLog.setSent(chatLogDTO.isSent());
+
+        if (chatLogDTO.getTimestamp() == null) {
             chatLog.setTimestamp(Instant.now().toEpochMilli());
+        }else {
+            chatLog.setTimestamp(chatLogDTO.getTimestamp());
         }
         ChatLog savedChatLog = chatLogRepository.save(chatLog);
         return savedChatLog;
