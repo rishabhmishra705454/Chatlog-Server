@@ -6,8 +6,6 @@ import lombok.Data;
 
 @Data
 public class ChatLogRequest {
-    @Schema(hidden = true)
-    public String Id;
 
     @NotBlank(message = "Message cannot be empty")
     public String message;
