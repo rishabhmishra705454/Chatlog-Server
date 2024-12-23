@@ -1,14 +1,13 @@
 package com.chatlog.chatlog_server.services;
 
 import com.chatlog.chatlog_server.models.ChatLog;
-import com.chatlog.chatlog_server.models.DTOs.ChatLogRequestDTO;
-import com.chatlog.chatlog_server.models.DTOs.ChatLogResponseDTO;
+import com.chatlog.chatlog_server.models.DTOs.ChatLogRequest;
+import com.chatlog.chatlog_server.models.DTOs.ChatLogResponse;
 import com.chatlog.chatlog_server.repository.ChatLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,30 +17,30 @@ public class ChatLogService {
     @Autowired
     private ChatLogRepository chatLogRepository;
 
-    public ChatLogResponseDTO saveChatLog(ChatLogRequestDTO chatLogRequestDTO, String user) {
+    public ChatLogResponse saveChatLog(ChatLogRequest chatLogRequest, String user) {
 
         ChatLog chatLog = new ChatLog();
         chatLog.setUser(user);
-        chatLog.setMessage(chatLogRequestDTO.getMessage());
-        chatLog.setSent(chatLogRequestDTO.isSent());
+        chatLog.setMessage(chatLogRequest.getMessage());
+        chatLog.setSent(chatLogRequest.isSent());
 
-        if (chatLogRequestDTO.getTimestamp() == null) {
+        if (chatLogRequest.getTimestamp() == null) {
             chatLog.setTimestamp(Instant.now().toEpochMilli());
         }else {
-            chatLog.setTimestamp(chatLogRequestDTO.getTimestamp());
+            chatLog.setTimestamp(chatLogRequest.getTimestamp());
         }
         ChatLog savedChatLog = chatLogRepository.save(chatLog);
 
-        ChatLogResponseDTO chatLogResponseDTO = new ChatLogResponseDTO();
-        chatLogResponseDTO.setId(savedChatLog.getId());
-        chatLogResponseDTO.setTimestamp(savedChatLog.getTimestamp());
-        chatLogResponseDTO.setMessage(savedChatLog.getMessage());
-        chatLogResponseDTO.setSent(savedChatLog.getSent());
+        ChatLogResponse chatLogResponse = new ChatLogResponse();
+        chatLogResponse.setId(savedChatLog.getId());
+        chatLogResponse.setTimestamp(savedChatLog.getTimestamp());
+        chatLogResponse.setMessage(savedChatLog.getMessage());
+        chatLogResponse.setSent(savedChatLog.getSent());
 
-        return chatLogResponseDTO;
+        return chatLogResponse;
     }
 
-    public List<ChatLogResponseDTO> getChatLogs(String user, int limit, String start) {
+    public List<ChatLogResponse> getChatLogs(String user, int limit, String start) {
 
         List<ChatLog> chatLogs;
 
@@ -85,8 +84,8 @@ public class ChatLogService {
         }).orElse(0);
     }
 
-    private ChatLogResponseDTO toResponseDTO(ChatLog chatLog) {
-        ChatLogResponseDTO responseDTO = new ChatLogResponseDTO();
+    private ChatLogResponse toResponseDTO(ChatLog chatLog) {
+        ChatLogResponse responseDTO = new ChatLogResponse();
         responseDTO.setId(chatLog.getId());
         responseDTO.setTimestamp(chatLog.getTimestamp());
         responseDTO.setMessage(chatLog.getMessage());

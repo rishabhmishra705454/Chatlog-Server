@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class ChatLogRequestDTO {
+public class ChatLogRequest {
     @Schema(hidden = true)
     public String Id;
 

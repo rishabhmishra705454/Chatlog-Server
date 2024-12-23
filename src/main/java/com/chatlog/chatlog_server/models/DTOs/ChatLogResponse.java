@@ -1,6 +1,6 @@
 package com.chatlog.chatlog_server.models.DTOs;
 
-public class ChatLogResponseDTO {
+public class ChatLogResponse {
 
     private String id;
     private String message;
