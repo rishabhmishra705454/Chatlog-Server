@@ -1,13 +1,16 @@
 package com.chatlog.chatlog_server.services;
 
 import com.chatlog.chatlog_server.models.ChatLog;
-import com.chatlog.chatlog_server.models.DTOs.ChatLogDTO;
+import com.chatlog.chatlog_server.models.DTOs.ChatLogRequestDTO;
+import com.chatlog.chatlog_server.models.DTOs.ChatLogResponseDTO;
 import com.chatlog.chatlog_server.repository.ChatLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatLogService {
@@ -15,35 +18,48 @@ public class ChatLogService {
     @Autowired
     private ChatLogRepository chatLogRepository;
 
-    public ChatLog saveChatLog(ChatLogDTO chatLogDTO, String user) {
+    public ChatLogResponseDTO saveChatLog(ChatLogRequestDTO chatLogRequestDTO, String user) {
 
         ChatLog chatLog = new ChatLog();
         chatLog.setUser(user);
-        chatLog.setMessage(chatLogDTO.getMessage());
-        chatLog.setSent(chatLogDTO.isSent());
+        chatLog.setMessage(chatLogRequestDTO.getMessage());
+        chatLog.setSent(chatLogRequestDTO.isSent());
 
-        if (chatLogDTO.getTimestamp() == null) {
+        if (chatLogRequestDTO.getTimestamp() == null) {
             chatLog.setTimestamp(Instant.now().toEpochMilli());
         }else {
-            chatLog.setTimestamp(chatLogDTO.getTimestamp());
+            chatLog.setTimestamp(chatLogRequestDTO.getTimestamp());
         }
         ChatLog savedChatLog = chatLogRepository.save(chatLog);
-        return savedChatLog;
+
+        ChatLogResponseDTO chatLogResponseDTO = new ChatLogResponseDTO();
+        chatLogResponseDTO.setId(savedChatLog.getId());
+        chatLogResponseDTO.setTimestamp(savedChatLog.getTimestamp());
+        chatLogResponseDTO.setMessage(savedChatLog.getMessage());
+        chatLogResponseDTO.setSent(savedChatLog.getSent());
+
+        return chatLogResponseDTO;
     }
 
-    public List<ChatLog> getChatLogs(String user, int limit, String start) {
+    public List<ChatLogResponseDTO> getChatLogs(String user, int limit, String start) {
+
+        List<ChatLog> chatLogs;
 
         if (start == null || start.isEmpty()) {
 
-            return chatLogRepository.findByUserOrderByTimestampDesc(user).stream().limit(limit).toList();
+           chatLogs = chatLogRepository.findByUserOrderByTimestampDesc(user).stream().limit(limit).toList();
 
         } else {
 
             ChatLog startLog = chatLogRepository.findById(start).orElseThrow(() -> new RuntimeException("Invalid start message Id: " + start));
 
-            return chatLogRepository.findByUserOrderByTimestampDesc(user).stream().dropWhile(chatLog -> !chatLog.getId().equals(startLog.getId())).skip(1).limit(limit).toList();
-
+            chatLogs = chatLogRepository.findByUserOrderByTimestampDesc(user).stream().dropWhile(chatLog -> !chatLog.getId().equals(startLog.getId()))
+                    .skip(1)
+                    .limit(limit)
+                    .toList();
         }
+
+        return chatLogs.stream().map(this::toResponseDTO).collect(Collectors.toList());
 
 
     }
@@ -69,4 +85,12 @@ public class ChatLogService {
         }).orElse(0);
     }
 
+    private ChatLogResponseDTO toResponseDTO(ChatLog chatLog) {
+        ChatLogResponseDTO responseDTO = new ChatLogResponseDTO();
+        responseDTO.setId(chatLog.getId());
+        responseDTO.setTimestamp(chatLog.getTimestamp());
+        responseDTO.setMessage(chatLog.getMessage());
+        responseDTO.setSent(chatLog.getSent());
+        return responseDTO;
+    }
 }

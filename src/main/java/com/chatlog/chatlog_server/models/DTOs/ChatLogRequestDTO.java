@@ -1,12 +1,13 @@
 package com.chatlog.chatlog_server.models.DTOs;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class ChatLogDTO {
+public class ChatLogRequestDTO {
+    @Schema(hidden = true)
+    public String Id;
 
     @NotBlank(message = "Message cannot be empty")
     public String message;

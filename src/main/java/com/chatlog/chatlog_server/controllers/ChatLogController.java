@@ -2,7 +2,8 @@ package com.chatlog.chatlog_server.controllers;
 
 
 import com.chatlog.chatlog_server.models.ChatLog;
-import com.chatlog.chatlog_server.models.DTOs.ChatLogDTO;
+import com.chatlog.chatlog_server.models.DTOs.ChatLogRequestDTO;
+import com.chatlog.chatlog_server.models.DTOs.ChatLogResponseDTO;
 import com.chatlog.chatlog_server.services.ChatLogService;
 import com.chatlog.chatlog_server.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,10 +24,10 @@ public class ChatLogController {
 
     @Operation(summary = "Timestamp is added automatically , But you can pass own ")
     @PostMapping("/{user}")
-    public ResponseEntity<Object> saveChatLog(@PathVariable("user") String user, @Valid @RequestBody ChatLogDTO chatLogDTO) {
+    public ResponseEntity<Object> saveChatLog(@PathVariable("user") String user, @Valid @RequestBody ChatLogRequestDTO chatLogRequestDTO) {
 
         try {
-            ChatLog savedLog = chatLogService.saveChatLog(chatLogDTO ,user);
+            ChatLogResponseDTO savedLog = chatLogService.saveChatLog(chatLogRequestDTO,user);
             return ResponseHandler.generateResponse("Chat log saved successfully", HttpStatus.CREATED, savedLog);
 
         } catch (Exception e) {
@@ -40,7 +41,7 @@ public class ChatLogController {
     public ResponseEntity<Object> getChatLogs(@PathVariable("user") String user, @RequestParam(value = "limit", defaultValue = "10") int limit, @RequestParam(value = "start", required = false) String start) {
 
         try {
-            List<ChatLog> chatLogs = chatLogService.getChatLogs(user, limit, start);
+            List<ChatLogResponseDTO> chatLogs = chatLogService.getChatLogs(user, limit, start);
 
             return ResponseHandler.generateResponse("Chat logs fetched successfully", HttpStatus.OK, chatLogs);
 
