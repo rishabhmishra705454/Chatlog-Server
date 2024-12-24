@@ -60,7 +60,7 @@ public class ChatLogService {
 
         int totalItems = chatLogs.size();
         int totalPages = (int) Math.ceil((double) totalItems / limit);
-        int currentPage = start == null ? 1 : (int) Math.ceil((double) totalItems / limit) + 1;
+        int currentPage = start == null ? 1 : ((totalItems - 1) / limit) + 1;
 
         List<ChatLog> paginatedChatLogs = chatLogs.stream().limit(limit).collect(Collectors.toList());
         List<ChatLogResponse> responseDTOs =
