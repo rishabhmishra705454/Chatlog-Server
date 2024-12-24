@@ -6,11 +6,11 @@ public class PaginatedResponse {
 
     private List<ChatLogResponse> data;
     private int totalPages;
-    private int totalItems;
+    private long totalItems;
     private int currentPage;
 
 
-    public PaginatedResponse(List<ChatLogResponse> data, int totalPages, int totalItems, int currentPage) {
+    public PaginatedResponse(List<ChatLogResponse> data, int totalPages, long totalItems, int currentPage) {
         this.data = data;
         this.totalPages = totalPages;
         this.totalItems = totalItems;
@@ -33,11 +33,11 @@ public class PaginatedResponse {
         this.totalPages = totalPages;
     }
 
-    public int getTotalItems() {
+    public long getTotalItems() {
         return totalItems;
     }
 
-    public void setTotalItems(int totalItems) {
+    public void setTotalItems(long totalItems) {
         this.totalItems = totalItems;
     }
 
