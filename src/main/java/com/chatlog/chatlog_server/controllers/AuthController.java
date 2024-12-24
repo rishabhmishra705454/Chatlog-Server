@@ -29,8 +29,6 @@ public class AuthController {
     @Autowired
     AuthenticationManager authenticationManager;
 
-
-
     @Autowired
     AuthService authService;
 
@@ -41,32 +39,50 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-        );
+        try {
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        JwtResponse jwtResponse = new JwtResponse(jwt, userDetails.getUsername(), userDetails.getEmail(), userDetails.getId());
-        return ResponseHandler.generateResponse("", HttpStatus.OK, jwtResponse);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+            JwtResponse jwtResponse = new JwtResponse(jwt, userDetails.getUsername(), userDetails.getEmail(), userDetails.getId());
+            return ResponseHandler.generateResponse("", HttpStatus.OK, jwtResponse);
+
+
+        } catch (Exception e) {
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+
+        }
+
 
     }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
-        if (authService.isUserNameExists(signupRequest.getUsername())) {
-            return ResponseHandler.generateResponse("Username is already taken!", HttpStatus.BAD_REQUEST, null);
+
+        try {
+
+            if (authService.isUserNameExists(signupRequest.getUsername())) {
+                return ResponseHandler.generateResponse("Username is already taken!", HttpStatus.BAD_REQUEST, null);
+            }
+
+            if (authService.isEmailExists(signupRequest.getEmail())){
+                return ResponseHandler.generateResponse("Email is already taken!", HttpStatus.BAD_REQUEST, null);
+
+            }
+
+            String msg = authService.saveUserData(signupRequest);
+            return ResponseHandler.generateResponse(msg, HttpStatus.CREATED, null);
+
+        } catch (Exception e) {
+
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
         }
 
-        if (authService.isEmailExists(signupRequest.getEmail())){
-            return ResponseHandler.generateResponse("Email is already taken!", HttpStatus.BAD_REQUEST, null);
-
-        }
-
-        String msg = authService.saveUserData(signupRequest);
-        return ResponseHandler.generateResponse(msg, HttpStatus.CREATED, null);
     }
 }
