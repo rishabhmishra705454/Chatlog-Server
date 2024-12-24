@@ -3,6 +3,7 @@ package com.chatlog.chatlog_server.controllers;
 
 import com.chatlog.chatlog_server.models.DTOs.ChatLogRequest;
 import com.chatlog.chatlog_server.models.DTOs.ChatLogResponse;
+import com.chatlog.chatlog_server.models.DTOs.PaginatedResponse;
 import com.chatlog.chatlog_server.services.ChatLogService;
 import com.chatlog.chatlog_server.utils.ResponseHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,9 +48,9 @@ public class ChatLogController {
         try {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            List<ChatLogResponse> chatLogs = chatLogService.getChatLogs(userDetails.getUsername(), limit, start);
+           PaginatedResponse paginatedResponse = chatLogService.getChatLogs(userDetails.getUsername(), limit, start);
 
-            return ResponseHandler.generateResponse("Chat log of "+userDetails.getUsername()+" fetched successfully", HttpStatus.OK, chatLogs);
+            return ResponseHandler.generateResponse("Chat log of "+userDetails.getUsername()+" fetched successfully", HttpStatus.OK, paginatedResponse);
 
         } catch (Exception e) {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);

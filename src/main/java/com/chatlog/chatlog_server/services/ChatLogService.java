@@ -3,6 +3,7 @@ package com.chatlog.chatlog_server.services;
 import com.chatlog.chatlog_server.models.ChatLog;
 import com.chatlog.chatlog_server.models.DTOs.ChatLogRequest;
 import com.chatlog.chatlog_server.models.DTOs.ChatLogResponse;
+import com.chatlog.chatlog_server.models.DTOs.PaginatedResponse;
 import com.chatlog.chatlog_server.repository.ChatLogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class ChatLogService {
 
         if (chatLogRequest.getTimestamp() == null) {
             chatLog.setTimestamp(Instant.now().toEpochMilli());
-        }else {
+        } else {
             chatLog.setTimestamp(chatLogRequest.getTimestamp());
         }
         ChatLog savedChatLog = chatLogRepository.save(chatLog);
@@ -40,13 +41,13 @@ public class ChatLogService {
         return chatLogResponse;
     }
 
-    public List<ChatLogResponse> getChatLogs(String user, int limit, String start) {
+    public PaginatedResponse getChatLogs(String user, int limit, String start) {
 
         List<ChatLog> chatLogs;
 
         if (start == null || start.isEmpty()) {
 
-           chatLogs = chatLogRepository.findByUserOrderByTimestampDesc(user).stream().limit(limit).toList();
+            chatLogs = chatLogRepository.findByUserOrderByTimestampDesc(user).stream().toList();
 
         } else {
 
@@ -54,12 +55,19 @@ public class ChatLogService {
 
             chatLogs = chatLogRepository.findByUserOrderByTimestampDesc(user).stream().dropWhile(chatLog -> !chatLog.getId().equals(startLog.getId()))
                     .skip(1)
-                    .limit(limit)
                     .toList();
         }
 
-        return chatLogs.stream().map(this::toResponseDTO).collect(Collectors.toList());
+        int totalItems = chatLogs.size();
+        int totalPages = (int) Math.ceil((double) totalItems / limit);
+        int currentPage = start == null ? 1 : (int) Math.ceil((double) totalItems / limit) + 1;
 
+        List<ChatLog> paginatedChatLogs = chatLogs.stream().limit(limit).collect(Collectors.toList());
+        List<ChatLogResponse> responseDTOs =
+                paginatedChatLogs.stream().map(this::toResponseDTO).collect(Collectors.toList());
+
+
+        return new PaginatedResponse(responseDTOs, totalPages, totalItems, currentPage);
 
     }
 
