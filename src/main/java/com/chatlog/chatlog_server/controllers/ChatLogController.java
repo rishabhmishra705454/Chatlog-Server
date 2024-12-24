@@ -43,12 +43,12 @@ public class ChatLogController {
 
 
     @GetMapping("/chatlogs")
-    public ResponseEntity<Object> getChatLogs(@RequestParam(value = "limit", defaultValue = "10") int limit, @RequestParam(value = "start", required = false) String start , Authentication authentication) {
+    public ResponseEntity<Object> getChatLogs(@RequestParam(value = "limit", defaultValue = "10") int limit, @RequestParam(value = "page", defaultValue = "1") int page , Authentication authentication) {
 
         try {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-           PaginatedResponse paginatedResponse = chatLogService.getChatLogs(userDetails.getUsername(), limit, start);
+           PaginatedResponse paginatedResponse = chatLogService.getChatLogs(userDetails.getUsername(), limit, page);
 
             return ResponseHandler.generateResponse("Chat log of "+userDetails.getUsername()+" fetched successfully", HttpStatus.OK, paginatedResponse);
 

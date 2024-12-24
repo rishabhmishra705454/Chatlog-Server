@@ -44,26 +44,34 @@ public class ChatLogService {
         return chatLogResponse;
     }
 
-    public PaginatedResponse getChatLogs(String user, int limit, String start) {
+    public PaginatedResponse getChatLogs(String user, int limit, int page) {
 
-         int currentPage =0;
+//        int currentPage =0;
+//        long totalItems = chatLogRepository.countByUser(user);
+//
+//
+//        if (start == null || start.isEmpty()) {
+//            System.out.println("start is null");
+//
+//        }else {
+//
+//            System.out.println("start is not null");
+//            ChatLog startLog = chatLogRepository.findById(start).orElseThrow(() -> new RuntimeException("Invalid start message Id: " + start));
+//
+//            long countFromStart = chatLogRepository.countByUserAndTimestampGreaterThanEqual(user, startLog.getTimestamp());
+//           long offset = totalItems - countFromStart;
+//            currentPage = (int) Math.ceil((double) offset / limit);
+//            System.out.println("start is not null total item " + totalItems +" currentpage " + currentPage );
+//         }
 
-        if (start != null || !start.isEmpty()) {
-
-            ChatLog startLog = chatLogRepository.findById(start).orElseThrow(() -> new RuntimeException("Invalid start message Id: " + start));
-
-            currentPage = (int) (chatLogRepository.countByUserAndTimestampGreaterThanEqual(user, startLog.getTimestamp()) / limit);
-        }
-
-        Pageable pageable = PageRequest.of(currentPage, limit);
+        Pageable pageable = PageRequest.of(page-1, limit);
 
         Page<ChatLog> chatLogPage = chatLogRepository.findByUserOrderByTimestampDesc(user, pageable);
         List<ChatLogResponse> responseDTOs = chatLogPage.getContent().stream().map(this::toResponseDTO).collect(Collectors.toList());
 
         int totalPages = chatLogPage.getTotalPages();
-        long totalItems = chatLogPage.getTotalElements();
 
-        return new PaginatedResponse(responseDTOs, totalPages, totalItems, chatLogPage.getNumber()+1);
+        return new PaginatedResponse(responseDTOs, totalPages, chatLogPage.getTotalElements(), chatLogPage.getNumber()+1);
 
     }
 

@@ -17,4 +17,6 @@ public interface ChatLogRepository extends MongoRepository<ChatLog, String> {
 
     boolean existsByUser(String user);
     long countByUserAndTimestampGreaterThanEqual(String user, long timestamp);
+
+    long countByUser(String user);
 }
